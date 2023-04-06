@@ -1,4 +1,8 @@
+using AutoMapper;
+using ChallengeAluraAdopet.API.Config;
 using ChallengeAluraAdopet.API.Context;
+using ChallengeAluraAdopet.API.Repository;
+using ChallengeAluraAdopet.API.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,6 +18,19 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<MyContext>(options =>
     options.UseSqlServer(builder.Configuration["DatabaseConnection:ConnectionString"]));
 MyContext.TestConnection(builder.Configuration["DatabaseConnection:ConnectionString"]);
+
+//Configuring AutoMapper
+IMapper mapper = MappingConfig.RegisterMaps().CreateMapper();
+builder.Services.AddSingleton(mapper);
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+//Repository
+builder.Services.AddTransient<MyContext>();
+builder.Services.AddTransient<ITutorRepository, TutorRepository>();
+
+//Services
+builder.Services.AddScoped<ITutorService, TutorService>();
+
 
 var app = builder.Build();
 
